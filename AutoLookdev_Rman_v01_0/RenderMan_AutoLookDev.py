@@ -158,6 +158,7 @@ def setRmanShadow():
 
 
 
+
 ####    Update Lookdev Size     ####
 
 def updateSize(scaleSlider, *args):
@@ -175,7 +176,6 @@ def updateBgType(bgStyle, *args):
         print("Setting the Background to Cyclo  ")
         cmds.setAttr("Lookdev_Scene_v01_Rman_Lookdev_CTRL.BackgroundType", 1)
 
-
 ####    Update Cyclo Type     ####
 def updateCycloType(cycloStyle, *args):
     cycloType = (cmds.optionMenu(cycloStyle, q=True, v=True))
@@ -186,12 +186,14 @@ def updateCycloType(cycloStyle, *args):
         print("Setting the Cyclo to Grid texture")
         cmds.setAttr("Lookdev_Scene_v01_Rman_Lookdev_CTRL.Lookdev_Cyclo_Type", 1)
         
-
 ####    Update Background Color     ####        
 def udateBgValue(colorStyle, *args):
     bgValue = (cmds.floatSliderGrp(colorStyle, q=True, v=True))
     print("Setting the Background Value to "+ str(bgValue))
     cmds.setAttr("Lookdev_Scene_v01_Rman_Lookdev_CTRL.Lookdev_Background_Color", bgValue)
+
+
+
 
 if __name__ == '__main__':
     main()
