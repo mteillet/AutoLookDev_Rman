@@ -45,17 +45,21 @@ def lookdevAuto():
     scriptFolder = getScriptPath()
     # Create the folder if needed
     checkFolderExists(srcIMGlookDev)
-    # Copy the HDRI if needed
-    srcIMGhdr = srcIMGlookDev + "/DefaultHDR.hdr.tex"
-    scriptHdr = scriptFolder + "DefaultHDR.hdr.tex"
-    checkHdrExists(scriptHdr, srcIMGhdr)
-    
-    # Copy the backdrop if needed
-    # Copy Camera and ShaderBalls if needed
-    
-    # Create Distant light
-    # Create Domelight and link to HDRI
-    # Create RimLight
+    # Copy the HDRI and ColorChecker if needed
+    srcIMGhdrTex = srcIMGlookDev + "/DefaultHDR.hdr.tex"
+    srcIMGhdrHdr = srcIMGlookDev + "/DefaultHDR.hdr"
+    srcIMGcolorCheckerTex = srcIMGlookDev + "/DefaultColorChecker.png.tex"
+    srcIMGcolorCheckerPng = srcIMGlookDev + "/DefaultColorChecker.png"
+    scriptHdrTex = scriptFolder + "DefaultHDR.hdr.tex"
+    scriptHdrHdr = scriptFolder + "DefaultHDR.hdr"
+    scriptColorCheckerTex = scriptFolder + "DefaultColorChecker.png.tex"
+    scriptColorCheckerPng = scriptFolder + "DefaultColorChecker.png"
+    checkHdrExists(scriptHdrTex, scriptHdrHdr, srcIMGhdrTex, srcIMGhdrHdr, scriptColorCheckerTex, scriptColorCheckerPng, srcIMGcolorCheckerTex, srcIMGcolorCheckerPng)
+    # Check if the Lookdev scene exists and copies it if not
+    scriptScene = scriptFolder + "Lookdev_Scene_v01.ma"
+    projectScene = srcIMGlookDev + "/Lookdev_Scene_v01.ma"
+    checkSceneExists(scriptScene, projectScene)
+    # Set the output holdout matte in alpha
     
 # Get the string for the maya project path 
 def getProjectPath():
@@ -74,12 +78,28 @@ def checkFolderExists(srcIMGlookDev):
     else:
         print("RmanAutoLookdev folder already exists")
 
-# Check if the HDRI exists in the RmanAutoLookdev folder
-def checkHdrExists(scriptHdr, srcIMGhdr):
-    if not os.path.exists(srcIMGhdr):
-        copyfile(scriptHdr, srcIMGhdr)
+# Check if the HDRI & ColorChecker exists in the RmanAutoLookdev folder
+def checkHdrExists(scriptHdrTex, scriptHdrHdr, srcIMGhdrTex, srcIMGhdrHdr, scriptColorCheckerTex, scriptColorCheckerPng, srcIMGcolorCheckerTex, srcIMGcolorCheckerPng):
+    # Check and copy HDR
+    if not os.path.exists(srcIMGhdrTex):
+        copyfile(scriptHdrTex, srcIMGhdrTex)
+        copyfile(scriptHdrHdr, srcIMGhdrHdr)
     else:
         print('default HDR is already in the project RmanAutoLookdev folder')
+    # Check and copy ColorChecker
+    if not os.path.exists(srcIMGcolorCheckerTex):
+        copyfile(scriptColorCheckerTex, srcIMGcolorCheckerTex)
+        copyfile(scriptColorCheckerPng, srcIMGcolorCheckerPng)
+    else:
+        print('default Color Checker is already in the project RmanAutoLookdev folder')
+
+def checkSceneExists(scriptScene, projectScene):
+    # Check and copy HDR
+    if not os.path.exists(projectScene):
+        copyfile(scriptScene, projectScene)
+    else:
+        print('Lookdev scene is already in the project RmanAutoLookdev folder')
+    # Check and copy ColorChecker
 
 if __name__ == '__main__':
     main()
