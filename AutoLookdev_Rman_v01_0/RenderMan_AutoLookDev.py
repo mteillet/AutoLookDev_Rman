@@ -1,6 +1,7 @@
 import maya.cmds as cmds
 import os
 from shutil import copyfile
+from functools import partial
 
 ####    Copyright 2019 DUBOIX Emanuelle Xuan and TEILLET Martin  - Licensed under the Apache License, Version 2.0 (the "License");
 ####    you may not use this file except in compliance with the License. You may obtain a copy of the License at:
@@ -14,30 +15,56 @@ def main():
     
     # Window
     
-    windowWidth = 600
-    window = cmds.window("winID", title="Renderman_Auto_Lookdev", iconName='RmanLookDev', widthHeight=(windowWidth, 600) )
+    windowWidth = 400
+    window = cmds.window("winID", title="Renderman_Auto_Lookdev", iconName='RmanLookDev', widthHeight=(windowWidth, 400) )
     ####            Header          ####
     cmds.rowColumnLayout( numberOfColumns=1, columnWidth=[(1, windowWidth)])
     cmds.text( label = "Renderman Auto Lookdev", font = "boldLabelFont", backgroundColor = [0.290, 0.705, 0.909], enableBackground = True, height = 80)
     cmds.separator()
     
+    
     # Layout
-    cmds.rowColumnLayout( numberOfColumns=2, columnWidth=[(1, 250), (2, 350)] )
-    cmds.separator( height = 40 )
+    cmds.rowColumnLayout( numberOfColumns=1 )
+    
     cmds.separator( height = 40 )
     
     # AutoLookdev
-    cmds.text(label = "Set Auto Lookdev")
     cmds.button(label = "AutoLookdev", command = 'lookdevAuto()')
     
     # Layout
     cmds.separator( height = 40 )
+
+    # Set Global Scale
+    # Hidden slider, serves only to define varible
+    scaleSlider = cmds.floatSliderGrp(label = "Lookdev Global Scale", min=0.001, max=100, value=1, precision = 3, field = True, dragCommand ='placeholder', changeCommand = 'placeholder')
+    # Slider calling the function as the variable is now defined
+    cmds.floatSliderGrp(scaleSlider, edit = True, dragCommand = partial(updateSize, scaleSlider), changeCommand = partial(updateSize, scaleSlider))
+    # Force update if the value is entered as string
+       
+    # Layout
     cmds.separator( height = 40 )
     
-    # Set Global Scale
-    cmds.text(label = "Lookdev Global Scale")
-    cmds.floatSlider( min=0, max=100000, value=1 )
+    # Set background Type
+    bgStyle = cmds.optionMenu( label="Background Type", changeCommand="placeholder")
+    cmds.menuItem( label="Plane" )
+    cmds.menuItem( label="Cyclo" )
+    cmds.optionMenu(bgStyle, edit = True, changeCommand = partial(updateBgType, bgStyle))
     
+    # Set Cyclo Type
+    cycloStyle = cmds.optionMenu(label = "Cyclo Type", changeCommand = 'placeholder')
+    cmds.menuItem(label = "Constant Color")
+    cmds.menuItem(label = "Checker")
+    cmds.optionMenu(cycloStyle, edit = True, changeCommand = partial(updateCycloType, cycloStyle))
+    
+    # Set Background Color
+    colorStyle = cmds.floatSliderGrp(label = "Background Value", min = 0, max = 1, value = 0.02, precision = 3, field = True, dragCommand = 'placefolder', changeCommand = 'placeholder')
+    cmds.floatSliderGrp(colorStyle, edit = True, dragCommand = partial(udateBgValue, colorStyle), changeCommand = partial(udateBgValue, colorStyle))
+    
+    # Layout
+    cmds.separator( height = 40 )
+    
+    
+    # Show window
     cmds.showWindow( window ) 
    
 
@@ -129,6 +156,42 @@ def setRmanShadow():
     cmds.setAttr("rmanGlobals.outputShadowAOV", 1)
     cmds.setAttr("rmanGlobals.learnLightSelection", 0)
 
+
+
+####    Update Lookdev Size     ####
+
+def updateSize(scaleSlider, *args):
+    globalScale = (cmds.floatSliderGrp(scaleSlider, q=True, v=True))
+    print(globalScale)
+    cmds.setAttr("Lookdev_Scene_v01_Rman_Lookdev_CTRL.Lookdev_GlobalScale", globalScale)
+
+####    Update Background Type     ####
+def updateBgType(bgStyle, *args):
+    bgType = (cmds.optionMenu(bgStyle, q=True, v=True))
+    if bgType == "Plane":
+        print("Setting the Background to infinite")
+        cmds.setAttr("Lookdev_Scene_v01_Rman_Lookdev_CTRL.BackgroundType", 0)
+    else:
+        print("Setting the Background to Cyclo  ")
+        cmds.setAttr("Lookdev_Scene_v01_Rman_Lookdev_CTRL.BackgroundType", 1)
+
+
+####    Update Cyclo Type     ####
+def updateCycloType(cycloStyle, *args):
+    cycloType = (cmds.optionMenu(cycloStyle, q=True, v=True))
+    if cycloType == "Constant Color":
+        print("Setting the Cyclo to constant color")
+        cmds.setAttr("Lookdev_Scene_v01_Rman_Lookdev_CTRL.Lookdev_Cyclo_Type", 0)
+    else : 
+        print("Setting the Cyclo to Grid texture")
+        cmds.setAttr("Lookdev_Scene_v01_Rman_Lookdev_CTRL.Lookdev_Cyclo_Type", 1)
+        
+
+####    Update Background Color     ####        
+def udateBgValue(colorStyle, *args):
+    bgValue = (cmds.floatSliderGrp(colorStyle, q=True, v=True))
+    print("Setting the Background Value to "+ str(bgValue))
+    cmds.setAttr("Lookdev_Scene_v01_Rman_Lookdev_CTRL.Lookdev_Background_Color", bgValue)
 
 if __name__ == '__main__':
     main()
