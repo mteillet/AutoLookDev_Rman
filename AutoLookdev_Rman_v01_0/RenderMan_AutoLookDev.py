@@ -30,6 +30,14 @@ def main():
     cmds.text(label = "Set Auto Lookdev")
     cmds.button(label = "AutoLookdev", command = 'lookdevAuto()')
     
+    # Layout
+    cmds.separator( height = 40 )
+    cmds.separator( height = 40 )
+    
+    # Set Global Scale
+    cmds.text(label = "Lookdev Global Scale")
+    cmds.floatSlider( min=0, max=100000, value=1 )
+    
     cmds.showWindow( window ) 
    
 
@@ -41,10 +49,13 @@ def lookdevAuto():
     project = getProjectPath()
     srcIMG = project + "sourceimages/"
     srcIMGlookDev = srcIMG + "RmanAutoLookdev"
+    
     # Get the script Path folder before copying the HDRI
     scriptFolder = getScriptPath()
+    
     # Create the folder if needed
     checkFolderExists(srcIMGlookDev)
+    
     # Copy the HDRI and ColorChecker if needed
     srcIMGhdrTex = srcIMGlookDev + "/DefaultHDR.hdr.tex"
     srcIMGhdrHdr = srcIMGlookDev + "/DefaultHDR.hdr"
@@ -55,11 +66,17 @@ def lookdevAuto():
     scriptColorCheckerTex = scriptFolder + "DefaultColorChecker.png.tex"
     scriptColorCheckerPng = scriptFolder + "DefaultColorChecker.png"
     checkHdrExists(scriptHdrTex, scriptHdrHdr, srcIMGhdrTex, srcIMGhdrHdr, scriptColorCheckerTex, scriptColorCheckerPng, srcIMGcolorCheckerTex, srcIMGcolorCheckerPng)
+    
     # Check if the Lookdev scene exists and copies it if not
     scriptScene = scriptFolder + "Lookdev_Scene_v01.ma"
     projectScene = srcIMGlookDev + "/Lookdev_Scene_v01.ma"
     checkSceneExists(scriptScene, projectScene)
-    # Set the output holdout matte in alpha
+    
+    # Import Lookdev as reference if it does not exist in the scene
+    importLookdev(projectScene)
+    
+    # Set the shadow output in the Beauty Alpha
+    setRmanShadow()
     
 # Get the string for the maya project path 
 def getProjectPath():
@@ -100,6 +117,18 @@ def checkSceneExists(scriptScene, projectScene):
     else:
         print('Lookdev scene is already in the project RmanAutoLookdev folder')
     # Check and copy ColorChecker
+
+# Importing the lookdev as reference
+def importLookdev(projectScene):
+    print("Import Lookdev as reference")
+    cmds.file(projectScene, r=True, uns = False )
+
+# Set the output of the shadows in the beauty alpha and deactivate the learn light from results
+def setRmanShadow():
+    print("Set Renderman Shadow output in Beauty's Alpha")
+    cmds.setAttr("rmanGlobals.outputShadowAOV", 1)
+    cmds.setAttr("rmanGlobals.learnLightSelection", 0)
+
 
 if __name__ == '__main__':
     main()
