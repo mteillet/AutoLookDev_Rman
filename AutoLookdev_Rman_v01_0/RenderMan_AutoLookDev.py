@@ -57,13 +57,40 @@ def main():
     cmds.optionMenu(cycloStyle, edit = True, changeCommand = partial(updateCycloType, cycloStyle))
     
     # Set Background Color
-    colorStyle = cmds.floatSliderGrp(label = "Background Value", min = 0, max = 1, value = 0.02, precision = 3, field = True, dragCommand = 'placefolder', changeCommand = 'placeholder')
+    colorStyle = cmds.floatSliderGrp(label = "Background Value", min = 0, max = 1, value = 0.02, precision = 3, field = True, dragCommand = 'placeholder', changeCommand = 'placeholder')
     cmds.floatSliderGrp(colorStyle, edit = True, dragCommand = partial(udateBgValue, colorStyle), changeCommand = partial(udateBgValue, colorStyle))
     
     # Layout
     cmds.separator( height = 40 )
+
+    # Set number of Shading balls
+    shadingBalls = cmds.optionMenu(label = "Shader Balls", changeCommand = 'placeholder')
+    cmds.menuItem(label = "Full")
+    cmds.menuItem(label = "Minimal")
+    cmds.optionMenu(shadingBalls, edit = True, changeCommand = partial(shadingBallType, shadingBalls))
     
-    
+    # Set the toggle for the colorchecker
+    colorCheck = cmds.optionMenu(label ="Color Checker", changeCommand = 'placeholder')
+    cmds.menuItem(label = "On")
+    cmds.menuItem(label = "Off")
+    cmds.optionMenu(colorCheck, edit = True, changeCommand = partial(colorCheckerToggle, colorCheck))
+
+    # Layout
+    cmds.separator( height = 40 )
+
+    # Set the camera focal length and compensates for it
+    cameraFocal = cmds.optionMenu(label = "Camera focal length", changeCommand = 'placeholder')
+    cmds.menuItem(label = "classic - 50 mm")
+    cmds.menuItem(label = "telelens - 85mm")
+    cmds.menuItem(label = "widelens - 28mm")
+    cmds.optionMenu(cameraFocal, edit = True, changeCommand = partial(setCamFocal, cameraFocal))
+
+    tweakHeight = cmds.floatSliderGrp(label="Tweak Camera Heigth", min = -50, max = 50, value = 0, step = 0.5, field = True, dragCommand = 'placeholder', changeCommand = 'placeholder')
+    cmds.floatSliderGrp(tweakHeight, edit = True, dragCommand = partial(camHeight, tweakHeight), changeCommand = partial(camHeight, tweakHeight))
+
+    tweakDepth = cmds.floatSliderGrp(label="Tweak Camera Dolly", min = -100, max = 100, value = 0, step = 0.5, field = True, dragCommand = 'placeholder', changeCommand = 'placeholder' )
+    cmds.floatSliderGrp(tweakDepth, edit = True, dragCommand = partial(camDolly, tweakDepth), changeCommand = partial(camDolly, tweakDepth))
+
     # Show window
     cmds.showWindow( window ) 
    
@@ -181,10 +208,10 @@ def updateCycloType(cycloStyle, *args):
     cycloType = (cmds.optionMenu(cycloStyle, q=True, v=True))
     if cycloType == "Constant Color":
         print("Setting the Cyclo to constant color")
-        cmds.setAttr("Lookdev_Scene_v01_Rman_Lookdev_CTRL.Lookdev_Cyclo_Type", 0)
+        cmds.setAttr("Lookdev_Scene_v01_Rman_Lookdev_CTRL.Lookdev_Cyclo_Type", 1)
     else : 
         print("Setting the Cyclo to Grid texture")
-        cmds.setAttr("Lookdev_Scene_v01_Rman_Lookdev_CTRL.Lookdev_Cyclo_Type", 1)
+        cmds.setAttr("Lookdev_Scene_v01_Rman_Lookdev_CTRL.Lookdev_Cyclo_Type", 0)
         
 ####    Update Background Color     ####        
 def udateBgValue(colorStyle, *args):
@@ -193,6 +220,47 @@ def udateBgValue(colorStyle, *args):
     cmds.setAttr("Lookdev_Scene_v01_Rman_Lookdev_CTRL.Lookdev_Background_Color", bgValue)
 
 
+def shadingBallType(shadingBalls, *args):
+    ballsType = (cmds.optionMenu(shadingBalls, q=True, v=True))
+    if ballsType == "Full":
+        print("Setting the Shader Balls to full type")
+        cmds.setAttr("Lookdev_Scene_v01_Rman_Lookdev_CTRL.Lookdev_ShaderBalls", 0)
+    else :
+        print("Setting the Shader Balls to minimal type")
+        cmds.setAttr("Lookdev_Scene_v01_Rman_Lookdev_CTRL.Lookdev_ShaderBalls", 1)
+
+def colorCheckerToggle(colorCheck, *args):
+    colorCheckerState = (cmds.optionMenu(colorCheck, q=True, v=True))
+    if colorCheckerState == "On":
+        print("Showing the ColorChecker")
+        cmds.setAttr("Lookdev_Scene_v01_Rman_Lookdev_CTRL.Lookdev_ColorChecker", 0)
+    else: 
+        print("Hiding the ColorChecker")
+        cmds.setAttr("Lookdev_Scene_v01_Rman_Lookdev_CTRL.Lookdev_ColorChecker", 1)
+
+def setCamFocal(cameraFocal, *args):
+    camFocLength = (cmds.optionMenu(cameraFocal, q=True, v=True))
+    if camFocLength == "classic - 50 mm":
+        print("Setting camera focal length to 50mm")
+        cmds.setAttr("Lookdev_Scene_v01_Lookdev_CamShape.focalLength", 50)
+        cmds.setAttr("Lookdev_Scene_v01_Lookdev_Cam_focal_compensator.translateZ", 133.103)
+    else:
+        if camFocLength == "telelens - 85mm":
+            print("Setting camera focal length to 85mm")
+            cmds.setAttr("Lookdev_Scene_v01_Lookdev_CamShape.focalLength", 85)
+            cmds.setAttr("Lookdev_Scene_v01_Lookdev_Cam_focal_compensator.translateZ", 141.465)
+        else:
+            print("setting camera focal length to 28mm")
+            cmds.setAttr("Lookdev_Scene_v01_Lookdev_CamShape.focalLength", 28)
+            cmds.setAttr("Lookdev_Scene_v01_Lookdev_Cam_focal_compensator.translateZ", 127.913)
+
+def camHeight(tweakHeight, *args):
+    changeHeight = (cmds.floatSliderGrp(tweakHeight, q=True, v=True))
+    cmds.setAttr("Lookdev_Scene_v01_Lookdev_CameraScale_LOC.translateY", changeHeight)
+
+def camDolly(tweakDepth, *args):
+    changeDolly = (cmds.floatSliderGrp(tweakDepth, q=True, v=True))
+    cmds.setAttr("Lookdev_Scene_v01_Lookdev_CameraScale_LOC.translateZ", changeDolly)
 
 
 if __name__ == '__main__':
