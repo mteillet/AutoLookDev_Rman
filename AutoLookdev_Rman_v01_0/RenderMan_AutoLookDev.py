@@ -91,7 +91,14 @@ def main():
     tweakDepth = cmds.floatSliderGrp(label="Tweak Camera Dolly", min = -100, max = 100, value = 0, step = 0.5, field = True, dragCommand = 'placeholder', changeCommand = 'placeholder' )
     cmds.floatSliderGrp(tweakDepth, edit = True, dragCommand = partial(camDolly, tweakDepth), changeCommand = partial(camDolly, tweakDepth))
 
-    # Show window
+    # Layout
+    cmds.separator( height = 40 )
+
+    # Change HDRI
+    changeHDR = cmds.button(label = "Change HDR", command = "changeHDRdef()")
+    # Reset
+
+    # Show window - Need update
     cmds.showWindow( window ) 
    
 
@@ -262,6 +269,15 @@ def camDolly(tweakDepth, *args):
     changeDolly = (cmds.floatSliderGrp(tweakDepth, q=True, v=True))
     cmds.setAttr("Lookdev_Scene_v01_Lookdev_CameraScale_LOC.translateZ", changeDolly)
 
+def changeHDRdef():
+    # Get the new HDR path
+    project = getProjectPath()
+    srcIMG = project + "sourceimages/"
+    file = cmds.fileDialog2(fileFilter = "*.hdr", dialogStyle = 1, fileMode = 1, dir = srcIMG )
+
+    # Change the path to the new HDR
+
+    
 
 if __name__ == '__main__':
     main()
