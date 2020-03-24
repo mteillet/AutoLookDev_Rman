@@ -18,7 +18,6 @@ fileInfo "product" "Maya 2019";
 fileInfo "version" "2019";
 fileInfo "cutIdentifier" "201907021615-48e59968a3";
 fileInfo "osv" "Microsoft Windows 10 Technical Preview  (Build 17763)\n";
-fileInfo "license" "student";
 createNode transform -s -n "persp";
 	rename -uid "1B5DF661-4606-EDA8-B991-F494836455EF";
 	setAttr ".v" no;
